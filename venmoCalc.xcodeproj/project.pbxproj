@@ -35,16 +35,6 @@
 			path = venmoCalc;
 			sourceTree = "<group>";
 		};
-		FEE253112D893984006B046C /* venmoCalcTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = venmoCalcTests;
-			sourceTree = "<group>";
-		};
-		FEE2531B2D893984006B046C /* venmoCalcUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = venmoCalcUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,8 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				FEE253002D893982006B046C /* venmoCalc */,
-				FEE253112D893984006B046C /* venmoCalcTests */,
-				FEE2531B2D893984006B046C /* venmoCalcUITests */,
 				FEE252FF2D893982006B046C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,9 +118,6 @@
 			dependencies = (
 				FEE253102D893984006B046C /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				FEE253112D893984006B046C /* venmoCalcTests */,
-			);
 			name = venmoCalcTests;
 			packageProductDependencies = (
 			);
@@ -152,9 +137,6 @@
 			);
 			dependencies = (
 				FEE2531A2D893984006B046C /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				FEE2531B2D893984006B046C /* venmoCalcUITests */,
 			);
 			name = venmoCalcUITests;
 			packageProductDependencies = (
