@@ -8,7 +8,7 @@
 import SwiftUI
 
 class CalcViewModel: ObservableObject {
-    @Published var calc = Calc(itemCosts: [], subtotal: 0, tax: 0, tip: 0)
+    @Published var calc = Calc(itemCosts: [0], subtotal: 0, tax: 0, tip: 0)
     
     func addItemCost() {
         calc.itemCosts.append(0)
@@ -23,5 +23,9 @@ class CalcViewModel: ObservableObject {
         if let newValue = Double(value), index < calc.itemCosts.count {
             calc.itemCosts[index] = newValue
         }
+    }
+    
+    func clearAll() {
+        calc = Calc(itemCosts: [0], subtotal: 0, tax: 0, tip: 0)
     }
 }
