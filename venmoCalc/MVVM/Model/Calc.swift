@@ -11,12 +11,12 @@ struct Calc {
     var tax: Double
     var tip: Double
     
-    var sum: Double {
+    var itemTotal: Double {
         itemCosts.reduce(0, +)
     }
     
     var quotient: Double {
-        subtotal == 0 ? 0 : sum / subtotal
+        subtotal == 0 ? 0 : itemTotal / subtotal
     }
     
     var total: Double {
