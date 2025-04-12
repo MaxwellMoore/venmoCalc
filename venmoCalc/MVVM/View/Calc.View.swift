@@ -18,9 +18,13 @@ struct ContentView: View {
                 Spacer(minLength: 16)
                 
                 // Total
-                Text("Total: $\(viewModel.total, specifier: "%.2f")")
-                    .font(.title)
-                    .padding(.horizontal)
+                HStack {
+                    Spacer()
+                    Text("Total: $\(viewModel.total, specifier: "%.2f")")
+                        .font(.title)
+                        .padding(.horizontal)
+                    Spacer()
+                }
                 
                 Divider()
                 
@@ -30,40 +34,78 @@ struct ContentView: View {
                         .font(.headline)
                         .padding(.horizontal)
 
-                    ForEach(viewModel.itemCosts, id: \.self) { itemCost in
-                        HStack {
-                            Text("Item Cost:")
-                            Spacer()
-                            TextField("Item Cost", text: Binding(
-                                get: { String(itemCost) },
-                                set: { viewModel.updateItemCost(at: viewModel.itemCosts.firstIndex(of: itemCost) ?? 0, value: $0) }
-                            ))
-                            .frame(width: 100)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .multilineTextAlignment(.trailing)
-                            .focused($isTextFieldFocused)
+                    ForEach(Array($viewModel.itemCosts.enumerated()), id: \.element.id) { index, $itemCost in
+                        VStack {
+                            HStack {
+                                Text("Item Cost:")
+                                
+                                Spacer()
 
-                            Button("X") {
-                                if let index = viewModel.itemCosts.firstIndex(of: itemCost) {
+                                TextField("Item Cost", value: $itemCost.totalCost, format: .number)
+                                    .frame(width: 100)
+                                    .keyboardType(.decimalPad)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .multilineTextAlignment(.trailing)
+                                    .focused($isTextFieldFocused)
+
+                                Button("X") {
                                     viewModel.removeItemCost(at: index)
                                 }
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .foregroundColor(.white)
+                                .background(Color.red.opacity(0.8))
+                                .cornerRadius(6)
                             }
-                            .padding(.vertical, 4)
-                            .padding(.horizontal, 8)
-                            .foregroundColor(.white)
-                            .background(Color.red.opacity(0.8))
-                            .cornerRadius(6)
+                            .padding(.horizontal)
+                            
+                            HStack {
+                                HStack {
+                                    Text("Split Cost: $\(itemCost.splitCost, specifier: "%.2f")")
+                                        .foregroundColor(.gray)
+                                    
+                                    Spacer()
+                                    
+                                    Text("Split: 1/\(itemCost.split, specifier: "%.0f")")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 12)
+                                .background(Color.gray.opacity(0.2))
+                                .cornerRadius(6)
+                                
+                                HStack {
+                                    Button("-") {
+                                        viewModel.decrementSplit(at: index)
+                                    }
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .foregroundColor(.white)
+                                    .background(Color.gray.opacity(0.6))
+                                    .cornerRadius(6)
+                                    
+                                    Button("+") {
+                                        viewModel.incrementSplit(at: index)
+                                    }
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .foregroundColor(.white)
+                                    .background(Color.gray.opacity(0.6))
+                                    .cornerRadius(6)
+                                }
+                            }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                     }
 
+                    
                     HStack {
                         Text("Item Total: $\(viewModel.itemTotal, specifier: "%.2f")")
                             .foregroundColor(.gray)
-                            .padding(8)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
                             .background(Color.gray.opacity(0.2))
-                            .cornerRadius(8)
+                            .cornerRadius(6)
 
                         Spacer()
 
@@ -153,10 +195,11 @@ struct ContentView: View {
             Text(value)
         }
         .padding(.vertical, 6)
-        .padding(.horizontal)
+        .padding(.horizontal, 12)
         .foregroundColor(.gray)
         .background(Color.gray.opacity(0.2))
         .cornerRadius(6)
+        .padding(.horizontal)
     }
 }
 
