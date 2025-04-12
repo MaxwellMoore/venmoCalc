@@ -9,32 +9,45 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = CalcViewModel()
+    @FocusState private var isTextFieldFocused: Bool
     
     var body: some View {
-        VStack {
-            Spacer()
-            Text("Total: $\(viewModel.calc.total, specifier: "%.2f")")
-                .font(.title)
-                .padding(.top, 10)
-            List {
-                // Item Costs Section
-                Section(header: Text("Personal")) {
-                    ForEach(viewModel.calc.itemCosts.indices, id: \.self) { index in
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                
+                Spacer(minLength: 16)
+                
+                // Total
+                Text("Total: $\(viewModel.total, specifier: "%.2f")")
+                    .font(.title)
+                    .padding(.horizontal)
+                
+                Divider()
+                
+                // Personal Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Personal")
+                        .font(.headline)
+                        .padding(.horizontal)
+
+                    ForEach(viewModel.itemCosts, id: \.self) { itemCost in
                         HStack {
                             Text("Item Cost:")
                             Spacer()
                             TextField("Item Cost", text: Binding(
-                                get: { String(viewModel.calc.itemCosts[index]) },
-                                set: { viewModel.updateItemCost(at: index, value: $0) }
+                                get: { String(itemCost) },
+                                set: { viewModel.updateItemCost(at: viewModel.itemCosts.firstIndex(of: itemCost) ?? 0, value: $0) }
                             ))
                             .frame(width: 100)
                             .keyboardType(.decimalPad)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .multilineTextAlignment(.trailing)
-                            .padding(.vertical, 2)
-                            
+                            .focused($isTextFieldFocused)
+
                             Button("X") {
-                                viewModel.removeItemCost(at: index)
+                                if let index = viewModel.itemCosts.firstIndex(of: itemCost) {
+                                    viewModel.removeItemCost(at: index)
+                                }
                             }
                             .padding(.vertical, 4)
                             .padding(.horizontal, 8)
@@ -42,16 +55,18 @@ struct ContentView: View {
                             .background(Color.red.opacity(0.8))
                             .cornerRadius(6)
                         }
+                        .padding(.horizontal)
                     }
 
                     HStack {
-                        Text("Item Total: $\(viewModel.calc.itemTotal, specifier: "%.2f")")
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 16)
+                        Text("Item Total: $\(viewModel.itemTotal, specifier: "%.2f")")
                             .foregroundColor(.gray)
+                            .padding(8)
                             .background(Color.gray.opacity(0.2))
                             .cornerRadius(8)
+
                         Spacer()
+
                         Button("+ Item") {
                             viewModel.addItemCost()
                         }
@@ -61,97 +76,38 @@ struct ContentView: View {
                         .background(Color.blue.opacity(0.8))
                         .cornerRadius(6)
                     }
-                    
-                    // Trick Swift UI to remove the bottom row separator, but not the top
-                    Color.clear
-                        .frame(height: 1)
-                        .listRowSeparator(.hidden)
+                    .padding(.horizontal)
                 }
                 
-                // Subtotal, Tax, Tip Section
-                Section(header: Text("Communal")) {
-                    VStack {
-                        HStack {
-                            Text("Subtotal:")
-                            Spacer()
-                            TextField("Subtotal", text: Binding(
-                                get: { String(viewModel.calc.subtotal) },
-                                set: { viewModel.calc.subtotal = Double($0) ?? 0 }
-                            ))
-                            .frame(width: 100)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .multilineTextAlignment(.trailing)
-                        }
-                        
-                        HStack {
-                            Text("Quotient ( itemTotal / subtotal ):")
-                            Spacer()
-                            Text("\(viewModel.calc.quotient, specifier: "%.2f")%")
-                        }
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 16)
-                        .foregroundColor(.gray)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(6)
-                    }
+                Divider()
+
+                // Communal Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Communal")
+                        .font(.headline)
+                        .padding(.horizontal)
                     
                     VStack {
-                        HStack {
-                            Text("Tax:")
-                            Spacer()
-                            TextField("Tax", text: Binding(
-                                get: { String(viewModel.calc.tax) },
-                                set: { viewModel.calc.tax = Double($0) ?? 0 }
-                            ))
-                            .frame(width: 100)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .multilineTextAlignment(.trailing)
-                        }
-                        
-                        HStack {
-                            Text("Fractional Product:")
-                            Spacer()
-                            Text("$\(viewModel.calc.tax * viewModel.calc.quotient, specifier: "%.2f")")
-                        }
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 16)
-                        .foregroundColor(.gray)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(6)
-                        
-                        
+                        communalRow(title: "Subtotal", value: $viewModel.subtotal)
+
+                        detailLabel(title: "Quotient ( itemTotal / subtotal ):",
+                                    value: String(format: "%.2f", viewModel.quotient) + "%")
                     }
-                    
+
                     VStack {
-                        HStack {
-                            Text("Tip:")
-                            Spacer()
-                            TextField("Tip", text: Binding(
-                                get: { String(viewModel.calc.tip) },
-                                set: { viewModel.calc.tip = Double($0) ?? 0 }
-                            ))
-                            .frame(width: 100)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .multilineTextAlignment(.trailing)
-                        }
-                        
-                        HStack {
-                            Text("Fractional Product:")
-                            Spacer()
-                            Text("$\(viewModel.calc.tip * viewModel.calc.quotient, specifier: "%.2f")")
-                        }
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 16)
-                        .foregroundColor(.gray)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(6)
+                        communalRow(title: "Tax", value: $viewModel.tax)
+
+                        detailLabel(title: "Fractional Product:",
+                                    value: "$" + String(format: "%.2f", (viewModel.tax * viewModel.quotient)))
                     }
-                    
-                    
-                    
+
+                    VStack {
+                        communalRow(title: "Tip", value: $viewModel.tip)
+
+                        detailLabel(title: "Fractional Product:",
+                                    value: "$" + String(format: "%.2f", (viewModel.tip * viewModel.quotient)))
+                    }
+
                     HStack {
                         Spacer()
                         Button("Clear All") {
@@ -163,16 +119,44 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .background(Color.red.opacity(0.8))
                         .cornerRadius(6)
+                        Spacer()
                     }
-                    
-                    Color.clear
-                        .frame(height: 1)
-                        .listRowSeparator(.hidden)
                 }
             }
-            .listStyle(.plain) // Removes extra spacing between sections
-
+            .padding(.bottom, 20)
         }
+        .onTapGesture {
+            isTextFieldFocused = false // Remove focus when tapping outside
+        }
+    }
+    
+    @ViewBuilder
+    private func communalRow(title: String, value: Binding<Double>) -> some View {
+        HStack {
+            Text("\(title):")
+            Spacer()
+            TextField(title, value: value, format: .number)
+                .frame(width: 100)
+                .keyboardType(.decimalPad)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .multilineTextAlignment(.trailing)
+                .focused($isTextFieldFocused)
+        }
+        .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    private func detailLabel(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(value)
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal)
+        .foregroundColor(.gray)
+        .background(Color.gray.opacity(0.2))
+        .cornerRadius(6)
     }
 }
 

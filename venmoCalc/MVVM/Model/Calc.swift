@@ -23,12 +23,3 @@ struct Calc {
         quotient * (subtotal + tax + tip)
     }
 }
-
-// personalSubtotal = $8.72
-// subtotal = $22.73
-// quotient = 0.3836339
-// tax = $3.82
-// tip = $7.21
-
-// M1 = $12.9514
-// M2 = $12.9514
