@@ -9,26 +9,45 @@ import SwiftUI
 
 class CalcViewModel: ObservableObject {
     @Published var itemCosts: [itemCost_t] = []
-    @Published var subtotal: Double = 0
-    @Published var tax: Double = 0
-    @Published var tip: Double = 0
-
-    var itemTotal: Double {
+    @Published var subtotal: Double? = nil
+    @Published var tax: Double? = nil
+    @Published var tip: Double? = nil
+    
+    var itemTotal: Double? {
         itemCosts.reduce(0) {runningSum, currentItem in
             runningSum + currentItem.splitCost
         }
     }
-
+    
     var quotient: Double {
-        subtotal == 0 ? 0 : itemTotal / subtotal
+        let safeItemTotal = itemTotal ?? 0
+        let safeSubtotal = subtotal ?? 0
+        return (safeItemTotal == 0 || safeSubtotal == 0) ? 1 : safeItemTotal / safeSubtotal
+    }
+    
+    var taxFractionalProduct: Double {
+        let safeTax = tax ?? 0
+        return quotient * safeTax
+    }
+    
+    var tipFractionalProduct: Double {
+        let safeTip = tip ?? 0
+        return quotient * safeTip
     }
 
     var total: Double {
-        itemTotal + tax * quotient + tip * quotient
+        let safeItemTotal = itemTotal ?? 0
+        let safeSubtotal = subtotal ?? 0
+        let safeTax = tax ?? 0
+        let safeTip = tip ?? 0
+        
+        // If the user didn't purchase anything, they shouldn't own anything
+        // for tax and tip
+        return safeItemTotal == 0 ? 0 : quotient * (safeSubtotal + safeTax + safeTip)
     }
 
     func addItemCost() {
-        let itemCost = itemCost_t(totalCost: 0.00, split: 1)
+        let itemCost = itemCost_t(totalCost: nil, split: 1)
         itemCosts.append(itemCost)
     }
 
@@ -60,9 +79,9 @@ class CalcViewModel: ObservableObject {
 
     func clearAll() {
         itemCosts = []
-        subtotal = 0
-        tax = 0
-        tip = 0
+        subtotal = nil
+        tax = nil
+        tip = nil
     }
 }
 

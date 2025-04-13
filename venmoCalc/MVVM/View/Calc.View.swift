@@ -41,7 +41,7 @@ struct ContentView: View {
                                 
                                 Spacer()
 
-                                TextField("Item Cost", value: $itemCost.totalCost, format: .number)
+                                TextField("$0.00", value: $itemCost.totalCost, format: .number)
                                     .frame(width: 100)
                                     .keyboardType(.decimalPad)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -100,7 +100,7 @@ struct ContentView: View {
 
                     
                     HStack {
-                        Text("Item Total: $\(viewModel.itemTotal, specifier: "%.2f")")
+                        Text("Item Total: $\(viewModel.itemTotal ?? 0, specifier: "%.2f")")
                             .foregroundColor(.gray)
                             .padding(.vertical, 6)
                             .padding(.horizontal, 12)
@@ -140,14 +140,14 @@ struct ContentView: View {
                         communalRow(title: "Tax", value: $viewModel.tax)
 
                         detailLabel(title: "Fractional Product:",
-                                    value: "$" + String(format: "%.2f", (viewModel.tax * viewModel.quotient)))
+                                    value: "$" + String(format: "%.2f", viewModel.taxFractionalProduct))
                     }
 
                     VStack {
                         communalRow(title: "Tip", value: $viewModel.tip)
 
                         detailLabel(title: "Fractional Product:",
-                                    value: "$" + String(format: "%.2f", (viewModel.tip * viewModel.quotient)))
+                                    value: "$" + String(format: "%.2f", viewModel.tipFractionalProduct))
                     }
 
                     HStack {
@@ -173,11 +173,11 @@ struct ContentView: View {
     }
     
     @ViewBuilder
-    private func communalRow(title: String, value: Binding<Double>) -> some View {
+    private func communalRow(title: String, value: Binding<Double?>) -> some View {
         HStack {
             Text("\(title):")
             Spacer()
-            TextField(title, value: value, format: .number)
+            TextField("$0.00", value: value, format: .number)
                 .frame(width: 100)
                 .keyboardType(.decimalPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())

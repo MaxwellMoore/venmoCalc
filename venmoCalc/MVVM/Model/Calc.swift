@@ -5,23 +5,16 @@
 //  Created by Maxwell Lane Moore on 3/18/25.
 //
 
-//struct itemCost_t {
-//    var totalCost: Double
-//    var portion: Double
-//    var portionedCost: Double {
-//        totalCost * portion
-//    }
-//}
-
 import SwiftUI
 
 struct itemCost_t: Identifiable, Equatable {
     var id = UUID()  // Required for Identifiable
-    var totalCost: Double
+    var totalCost: Double?
     var split: Double
 
     var splitCost: Double {
-        return totalCost / split
+        let safeTotalCost = totalCost ?? 0
+        return safeTotalCost / split
     }
 }
 
