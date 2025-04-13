@@ -78,7 +78,8 @@ struct ContentView: View {
         
                                             Spacer()
         
-                                            TextField("$0.00", value: $itemCost.totalCost, format: .number)
+//                                            TextField("$0.00", value: $itemCost.totalCost, format: .number)
+                                            TextField("$0.00", value: $itemCost.totalCost, format: .currency(code: "USD"))
                                                 .frame(width: 100)
                                                 .keyboardType(.decimalPad)
                                                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -86,12 +87,16 @@ struct ContentView: View {
                                                 .id(FieldFocus.item(index: index)) // For scrollTo
                                                 .focused($focusedField, equals: .item(index: index))
         
-                                            Button("X") {
+                                            Button {
                                                 viewModel.removeItemCost(at: index)
+                                            } label: {
+                                                Image(systemName: "trash")
+                                                    .font(.headline)
+                                                    .frame(maxHeight: .infinity)
                                             }
                                             .padding(.vertical, 4)
                                             .padding(.horizontal, 8)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.white.opacity(0.85))
                                             .background(Color.red.opacity(0.8))
                                             .cornerRadius(6)
                                         }
@@ -111,26 +116,33 @@ struct ContentView: View {
                                             .padding(.horizontal, 12)
                                             .background(Color.gray.opacity(0.2))
                                             .cornerRadius(6)
-        
+                                            
                                             HStack {
-                                                Button("-") {
+                                                Button {
                                                     viewModel.decrementSplit(at: index)
+                                                } label: {
+                                                    Image(systemName: "minus")
+                                                        .font(.headline)
+                                                        .frame(maxHeight: .infinity)
                                                 }
-                                                .padding(.vertical, 4)
-                                                .padding(.horizontal, 8)
                                                 .foregroundColor(.white)
+                                                .padding(6)
                                                 .background(Color.gray.opacity(0.6))
                                                 .cornerRadius(6)
-        
-                                                Button("+") {
+
+                                                Button {
                                                     viewModel.incrementSplit(at: index)
+                                                } label: {
+                                                    Image(systemName: "plus")
+                                                        .font(.headline)
+                                                        .frame(maxHeight: .infinity)
                                                 }
-                                                .padding(.vertical, 4)
-                                                .padding(.horizontal, 8)
                                                 .foregroundColor(.white)
+                                                .padding(6)
                                                 .background(Color.gray.opacity(0.6))
                                                 .cornerRadius(6)
                                             }
+
                                         }
                                         .padding(.horizontal)
                                     }
@@ -149,7 +161,7 @@ struct ContentView: View {
         
                                     Button("+ Item") {
                                         let newIndex = viewModel.addItemCost()
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
                                             focusedField = .item(index: newIndex)
                                         }
                                     }
@@ -196,6 +208,7 @@ struct ContentView: View {
                                     Spacer()
                                     Button("Clear All") {
                                         viewModel.clearAll()
+                                        focusedField = nil
                                     }
                                     .fontWeight(.semibold)
                                     .padding(.vertical, 6)
@@ -243,7 +256,8 @@ struct ContentView: View {
         HStack {
             Text("\(title):")
             Spacer()
-            TextField("$0.00", value: value, format: .number)
+//            TextField("$0.00", value: value, format: .number)
+            TextField("$0.00", value: value, format: .currency(code: "USD"))
                 .frame(width: 100)
                 .keyboardType(.decimalPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
