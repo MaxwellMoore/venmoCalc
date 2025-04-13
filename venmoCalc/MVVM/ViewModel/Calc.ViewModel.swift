@@ -45,10 +45,11 @@ class CalcViewModel: ObservableObject {
         // for tax and tip
         return safeItemTotal == 0 ? 0 : quotient * (safeSubtotal + safeTax + safeTip)
     }
-
-    func addItemCost() {
-        let itemCost = itemCost_t(totalCost: nil, split: 1)
-        itemCosts.append(itemCost)
+    
+    func addItemCost() -> Int {
+        let newItem = itemCost_t(id: UUID(), totalCost: nil, split: 1)
+        itemCosts.append(newItem)
+        return itemCosts.count - 1
     }
 
     func removeItemCost(at index: Int) {

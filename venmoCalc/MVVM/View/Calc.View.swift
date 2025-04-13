@@ -40,185 +40,199 @@ struct ContentView: View {
     }
     
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    
-                    Spacer(minLength: 16)
-                    
-                    // Total
-                    HStack {
-                        Spacer()
-                        Text("Total: $\(viewModel.total, specifier: "%.2f")")
-                            .font(.title)
-                            .padding(.horizontal)
-                        Spacer()
-                    }
-                    
-                    Divider()
-                    
-                    // Personal Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Personal")
-                            .font(.headline)
-                            .padding(.horizontal)
+        ZStack(alignment: .top) {
+            Color(.systemBackground)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Fixed Total View
+                HStack {
+                    Spacer()
+                    Text("Total: $\(viewModel.total, specifier: "%.2f")")
+                        .font(.title)
+                        .padding(.horizontal)
+                        .padding(.vertical, 16)
+                        .background(Color(.systemBackground).opacity(0.95))
+                        .frame(maxWidth: .infinity)
+                    Spacer()
+                }
+                .zIndex(1)
 
-                        ForEach(Array($viewModel.itemCosts.enumerated()), id: \.element.id) { index, $itemCost in
-                            VStack {
-                                HStack {
-                                    Text("Item Cost:")
-                                    
-                                    Spacer()
+                Divider()
 
-                                    TextField("$0.00", value: $itemCost.totalCost, format: .number)
-                                        .frame(width: 100)
-                                        .keyboardType(.decimalPad)
-                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                                        .multilineTextAlignment(.trailing)
-                                        .id(FieldFocus.item(index: index)) // For scrollTo
-                                        .focused($focusedField, equals: .item(index: index))
-
-                                    Button("X") {
-                                        viewModel.removeItemCost(at: index)
+                // Scrollable Content
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 20) {
+                            
+                            // Personal Section
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Personal")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+        
+                                ForEach(Array($viewModel.itemCosts.enumerated()), id: \.element.id) { index, $itemCost in
+                                    VStack {
+                                        HStack {
+                                            Text("Item Cost:")
+        
+                                            Spacer()
+        
+                                            TextField("$0.00", value: $itemCost.totalCost, format: .number)
+                                                .frame(width: 100)
+                                                .keyboardType(.decimalPad)
+                                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                .multilineTextAlignment(.trailing)
+                                                .id(FieldFocus.item(index: index)) // For scrollTo
+                                                .focused($focusedField, equals: .item(index: index))
+        
+                                            Button("X") {
+                                                viewModel.removeItemCost(at: index)
+                                            }
+                                            .padding(.vertical, 4)
+                                            .padding(.horizontal, 8)
+                                            .foregroundColor(.white)
+                                            .background(Color.red.opacity(0.8))
+                                            .cornerRadius(6)
+                                        }
+                                        .padding(.horizontal)
+        
+                                        HStack {
+                                            HStack {
+                                                Text("Split Cost: $\(itemCost.splitCost, specifier: "%.2f")")
+                                                    .foregroundColor(.gray)
+        
+                                                Spacer()
+        
+                                                Text("Split: 1/\(itemCost.split, specifier: "%.0f")")
+                                                    .foregroundColor(.gray)
+                                            }
+                                            .padding(.vertical, 6)
+                                            .padding(.horizontal, 12)
+                                            .background(Color.gray.opacity(0.2))
+                                            .cornerRadius(6)
+        
+                                            HStack {
+                                                Button("-") {
+                                                    viewModel.decrementSplit(at: index)
+                                                }
+                                                .padding(.vertical, 4)
+                                                .padding(.horizontal, 8)
+                                                .foregroundColor(.white)
+                                                .background(Color.gray.opacity(0.6))
+                                                .cornerRadius(6)
+        
+                                                Button("+") {
+                                                    viewModel.incrementSplit(at: index)
+                                                }
+                                                .padding(.vertical, 4)
+                                                .padding(.horizontal, 8)
+                                                .foregroundColor(.white)
+                                                .background(Color.gray.opacity(0.6))
+                                                .cornerRadius(6)
+                                            }
+                                        }
+                                        .padding(.horizontal)
                                     }
-                                    .padding(.vertical, 4)
-                                    .padding(.horizontal, 8)
-                                    .foregroundColor(.white)
-                                    .background(Color.red.opacity(0.8))
-                                    .cornerRadius(6)
                                 }
-                                .padding(.horizontal)
-                                
+        
+        
                                 HStack {
-                                    HStack {
-                                        Text("Split Cost: $\(itemCost.splitCost, specifier: "%.2f")")
-                                            .foregroundColor(.gray)
-                                        
-                                        Spacer()
-                                        
-                                        Text("Split: 1/\(itemCost.split, specifier: "%.0f")")
-                                            .foregroundColor(.gray)
+                                    Text("Item Total: $\(viewModel.itemTotal ?? 0, specifier: "%.2f")")
+                                        .foregroundColor(.gray)
+                                        .padding(.vertical, 6)
+                                        .padding(.horizontal, 12)
+                                        .background(Color.gray.opacity(0.2))
+                                        .cornerRadius(6)
+        
+                                    Spacer()
+        
+                                    Button("+ Item") {
+                                        let newIndex = viewModel.addItemCost()
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                            focusedField = .item(index: newIndex)
+                                        }
                                     }
                                     .padding(.vertical, 6)
                                     .padding(.horizontal, 12)
-                                    .background(Color.gray.opacity(0.2))
+                                    .foregroundColor(.white)
+                                    .background(Color.blue.opacity(0.8))
                                     .cornerRadius(6)
-                                    
-                                    HStack {
-                                        Button("-") {
-                                            viewModel.decrementSplit(at: index)
-                                        }
-                                        .padding(.vertical, 4)
-                                        .padding(.horizontal, 8)
-                                        .foregroundColor(.white)
-                                        .background(Color.gray.opacity(0.6))
-                                        .cornerRadius(6)
-                                        
-                                        Button("+") {
-                                            viewModel.incrementSplit(at: index)
-                                        }
-                                        .padding(.vertical, 4)
-                                        .padding(.horizontal, 8)
-                                        .foregroundColor(.white)
-                                        .background(Color.gray.opacity(0.6))
-                                        .cornerRadius(6)
-                                    }
                                 }
                                 .padding(.horizontal)
                             }
-                        }
-
-                        
-                        HStack {
-                            Text("Item Total: $\(viewModel.itemTotal ?? 0, specifier: "%.2f")")
-                                .foregroundColor(.gray)
-                                .padding(.vertical, 6)
-                                .padding(.horizontal, 12)
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(6)
-
-                            Spacer()
-
-                            Button("+ Item") {
-                                viewModel.addItemCost()
+                            .padding(.top)
+        
+                            Divider()
+        
+                            // Communal Section
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Communal")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+        
+                                VStack {
+                                    communalRow(title: "Subtotal", value: $viewModel.subtotal)
+        
+                                    detailLabel(title: "Quotient ( itemTotal / subtotal ):",
+                                                value: String(format: "%.2f", viewModel.quotient) + "%")
+                                }
+        
+                                VStack {
+                                    communalRow(title: "Tax", value: $viewModel.tax)
+        
+                                    detailLabel(title: "Fractional Product:",
+                                                value: "$" + String(format: "%.2f", viewModel.taxFractionalProduct))
+                                }
+        
+                                VStack {
+                                    communalRow(title: "Tip", value: $viewModel.tip)
+        
+                                    detailLabel(title: "Fractional Product:",
+                                                value: "$" + String(format: "%.2f", viewModel.tipFractionalProduct))
+                                }
+        
+                                HStack {
+                                    Spacer()
+                                    Button("Clear All") {
+                                        viewModel.clearAll()
+                                    }
+                                    .fontWeight(.semibold)
+                                    .padding(.vertical, 6)
+                                    .padding(.horizontal, 12)
+                                    .foregroundColor(.white)
+                                    .background(Color.red.opacity(0.8))
+                                    .cornerRadius(6)
+                                    Spacer()
+                                }
                             }
-                            .padding(.vertical, 6)
+                        }
+                        .padding(.bottom, 20)
+                    }
+                    .onTapGesture {
+                        focusedField = nil
+                    }
+                    .onChange(of: focusedField) {
+                        withAnimation {
+                            if let field = focusedField {
+                                proxy.scrollTo(field, anchor: .center)
+                            }
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Next") {
+                                moveToNextField()
+                            }
+                            .fontWeight(.semibold)
+                            .padding(.vertical, 4)
                             .padding(.horizontal, 12)
                             .foregroundColor(.white)
                             .background(Color.blue.opacity(0.8))
                             .cornerRadius(6)
                         }
-                        .padding(.horizontal)
                     }
-                    
-                    Divider()
-
-                    // Communal Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Communal")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        VStack {
-                            communalRow(title: "Subtotal", value: $viewModel.subtotal)
-
-                            detailLabel(title: "Quotient ( itemTotal / subtotal ):",
-                                        value: String(format: "%.2f", viewModel.quotient) + "%")
-                        }
-
-                        VStack {
-                            communalRow(title: "Tax", value: $viewModel.tax)
-
-                            detailLabel(title: "Fractional Product:",
-                                        value: "$" + String(format: "%.2f", viewModel.taxFractionalProduct))
-                        }
-
-                        VStack {
-                            communalRow(title: "Tip", value: $viewModel.tip)
-
-                            detailLabel(title: "Fractional Product:",
-                                        value: "$" + String(format: "%.2f", viewModel.tipFractionalProduct))
-                        }
-
-                        HStack {
-                            Spacer()
-                            Button("Clear All") {
-                                viewModel.clearAll()
-                            }
-                            .fontWeight(.semibold)
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 12)
-                            .foregroundColor(.white)
-                            .background(Color.red.opacity(0.8))
-                            .cornerRadius(6)
-                            Spacer()
-                        }
-                    }
-                }
-                .padding(.bottom, 20)
-            }
-            .onTapGesture {
-                focusedField = nil // Remove focus when tapping outside
-            }
-            .onChange(of: focusedField) {
-                withAnimation {
-                    if let field = focusedField {
-                        proxy.scrollTo(field, anchor: .center)
-                    }
-                }
-            }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Next") {
-                        moveToNextField()
-                    }
-                    .fontWeight(.semibold)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 12)
-                    .foregroundColor(.white)
-                    .background(Color.blue.opacity(0.8))
-                    .cornerRadius(6)
                 }
             }
         }
